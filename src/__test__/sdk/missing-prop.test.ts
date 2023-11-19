@@ -1,6 +1,5 @@
 import { expect, describe, it, vi } from "vitest";
 import { Email, setApiKey } from "../../sdk";
-import { send } from "@sendgrid/mail";
 
 vi.mock("@sendgrid/mail", async (importOriginal) => {
   const module_ = await importOriginal<typeof import("@sendgrid/mail")>();

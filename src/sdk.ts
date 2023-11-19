@@ -45,16 +45,18 @@ const ZSendGridEmail = z.object({
   text: z.string(),
   html: z.string().optional(),
 });
+
+const ZEmailProperties = z.object({
+  to: z.string().email().optional(),
+  from: z.string().email().optional(),
+  subject: z.string().optional(),
+  text: z.string().optional(),
+  content_type: z.nativeEnum(ContentType).optional(),
+});
 //#endregion
 
 export class Email {
-  private props: {
-    to?: string;
-    from?: string;
-    subject?: string;
-    text?: string;
-    content_type: ContentType;
-  } = {
+  private props: z.infer<typeof ZEmailProperties> = {
     content_type: ContentType.TEXT,
     from: defaultSender,
   };
@@ -97,6 +99,14 @@ export class Email {
   //#endregion
 
   async send() {
+    this.checkApiKey();
+
+    const formatted = this.toSendGridEmail();
+
+    return send(formatted);
+  }
+
+  private checkApiKey() {
     if (!checkApiKey()) {
       throw new Error(
         outdent`
@@ -105,7 +115,9 @@ export class Email {
         `
       );
     }
+  }
 
+  toSendGridEmail() {
     const message = {
       to: this.props.to,
       from: this.props.from,
@@ -125,7 +137,7 @@ export class Email {
       });
     }
 
-    return send(result.data);
+    return result.data;
   }
 
   toJSON() {
