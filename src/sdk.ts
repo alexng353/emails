@@ -2,20 +2,23 @@ import sg, { send } from "@sendgrid/mail";
 import z from "zod";
 import outdent from "outdent";
 
-//#region Sendgrid API Key
-let apiKeySet = false;
+//#region Sendgrid API Key Configuration
+export const checkApiKey = () => {
+  //@ts-expect-error - @sendgrid/mail's declarations do not export the auth property
+  return !!sg.client.auth;
+};
+
 if (process.env.SENDGRID_API_KEY) {
   sg.setApiKey(process.env.SENDGRID_API_KEY);
-  apiKeySet = true;
 }
+
 export function setApiKey(apiKey: string) {
   sg.setApiKey(apiKey);
-  apiKeySet = true;
 }
 //#endregion
 
 //#region Sendgrid Email Sender
-let defaultSender: string | undefined = undefined;
+let defaultSender: string | undefined;
 /**
  * @description Set the default sender for all emails
  * @param sender The email address to send from
@@ -52,13 +55,14 @@ export class Email {
     text?: string;
     content_type: ContentType;
   } = {
-      content_type: ContentType.TEXT,
-      from: defaultSender,
-    };
+    content_type: ContentType.TEXT,
+    from: defaultSender,
+  };
+
   //#region Setters
-  constructor(props?: typeof Email.prototype.props) {
-    if (props) {
-      this.props = props;
+  constructor(properties?: typeof Email.prototype.props) {
+    if (properties) {
+      this.props = properties;
     }
 
     return this;
@@ -93,15 +97,16 @@ export class Email {
   //#endregion
 
   async send() {
-    if (!apiKeySet) {
+    if (!checkApiKey()) {
       throw new Error(
         outdent`
           Sendgrid API Key not set.
-          Set the SENDGRID_API_KEY environment variable or call setApiKey()`,
+          Set the SENDGRID_API_KEY environment variable or call setApiKey()
+        `
       );
     }
 
-    const msg = {
+    const message = {
       to: this.props.to,
       from: this.props.from,
       subject: this.props.subject,
@@ -112,14 +117,18 @@ export class Email {
           : undefined,
     };
 
-    const result = ZSendGridEmail.safeParse(msg);
+    const result = ZSendGridEmail.safeParse(message);
 
     if (!result.success) {
-      throw new Error("Failed to send email", {
+      throw new Error("invalid email", {
         cause: result.error,
       });
     }
 
     return send(result.data);
+  }
+
+  toJSON() {
+    return this.props;
   }
 }
