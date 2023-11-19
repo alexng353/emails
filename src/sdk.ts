@@ -5,11 +5,6 @@ import { Util } from "./util";
 import format from "string-template";
 
 //#region Sendgrid API Key Configuration
-export const checkApiKey = () => {
-  //@ts-expect-error - @sendgrid/mail's declarations do not export the auth property
-  return !!sg.client.auth;
-};
-
 if (process.env.SENDGRID_API_KEY) {
   sg.setApiKey(process.env.SENDGRID_API_KEY);
 }
@@ -39,21 +34,6 @@ export enum ContentType {
   TEXT = "text/plain",
   HTML = "text/html",
 }
-
-// const ZSendGridEmail = z
-//   .object({
-//     to: z.string().email(),
-//     from: z.string().email(),
-//     subject: z.string(),
-//     text: z.string().optional(),
-//     html: z.string().optional(),
-//   })
-//   .refine((data) => !!(data.text || data.html), {
-//     message: "text or html must be set",
-//   })
-//   .refine((data) => (data.text || data.html) && !(data.text && data.html), {
-//     message: "text and html cannot both be set",
-//   });
 
 const ZSendGridEmail = (type: ContentType) => {
   switch (type) {
