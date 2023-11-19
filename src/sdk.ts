@@ -3,15 +3,18 @@ import z from "zod";
 import outdent from "outdent";
 import { Util } from "./util";
 import format from "string-template";
+import { env } from "./env";
 
 //#region Sendgrid API Key Configuration
-if (process.env.SENDGRID_API_KEY) {
-  sg.setApiKey(process.env.SENDGRID_API_KEY);
-}
-
 export function setApiKey(apiKey: string) {
   sg.setApiKey(apiKey);
 }
+
+const apiKey = env.SENDGRID_API_KEY;
+if (apiKey) {
+  setApiKey(apiKey);
+}
+
 //#endregion
 
 //#region Sendgrid Email Sender
@@ -56,6 +59,11 @@ const ZSendGridEmail = (type: ContentType) => {
   }
 };
 
+const ZGenericSendGridEmail = z.union([
+  ZSendGridEmail(ContentType.TEXT),
+  ZSendGridEmail(ContentType.HTML),
+]);
+
 const ZEmailProperties = z.object({
   to: z.string().email().optional(),
   from: z.string().email().optional(),
@@ -87,8 +95,7 @@ export class Email extends Util {
     return this;
   }
 
-  from(from: string, debug = false) {
-    if (debug) console.log("from", from);
+  from(from: string) {
     z.string().email().parse(from);
     this.props.from = from;
     return this;
@@ -255,7 +262,18 @@ export class Mailer extends Util {
   /**
    * @description Add an email to the list of emails
    */
-  addEmail(email: Email) {
+  addEmail(email: Email | Email[]) {
+    // TODO: add some zod validation
+
+    if (Array.isArray(email)) {
+      for (const em of email) {
+        ZGenericSendGridEmail.parse(em.toSendGridEmail());
+        this.props.emails.push(em);
+      }
+      return this;
+    }
+
+    ZGenericSendGridEmail.parse(email.toSendGridEmail());
     this.props.emails.push(email);
     return this;
   }

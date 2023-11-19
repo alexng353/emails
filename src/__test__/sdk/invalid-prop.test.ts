@@ -11,7 +11,7 @@ vi.mock("@sendgrid/mail", async (importOriginal) => {
 });
 
 describe("Invalid Email Props", () => {
-  it("should throw if `from` is invalid", async () => {
+  it.concurrent("should throw if `from` is invalid", async () => {
     setApiKey("SG.123");
 
     expect(() => new Email().from("noreply(at)example.com)")).toThrowError(
@@ -19,7 +19,7 @@ describe("Invalid Email Props", () => {
     );
   });
 
-  it("should throw if `to` is invalid", async () => {
+  it.concurrent("should throw if `to` is invalid", async () => {
     setApiKey("SG.123");
 
     expect(() => new Email().to("test(at)example.com")).toThrowError(

@@ -11,7 +11,7 @@ vi.mock("@sendgrid/mail", async (importOriginal) => {
 });
 
 describe("Email Missing Props", () => {
-  it("should throw if `from` is missing", async () => {
+  it.concurrent("should throw if `from` is missing", async () => {
     setApiKey("SG.123");
 
     const email = new Email()
@@ -32,7 +32,7 @@ describe("Email Missing Props", () => {
     }
   });
 
-  it("should throw if `to` is missing", async () => {
+  it.concurrent("should throw if `to` is missing", async () => {
     setApiKey("SG.123");
 
     const email = new Email()
@@ -53,7 +53,7 @@ describe("Email Missing Props", () => {
     }
   });
 
-  it("should throw if `subject` is missing", async () => {
+  it.concurrent("should throw if `subject` is missing", async () => {
     setApiKey("SG.123");
 
     const email = new Email()
@@ -74,7 +74,7 @@ describe("Email Missing Props", () => {
     }
   });
 
-  it("should throw if `message` is missing", async () => {
+  it.concurrent("should throw if `message` is missing", async () => {
     setApiKey("SG.123");
 
     const email = new Email()
@@ -93,5 +93,19 @@ describe("Email Missing Props", () => {
       expect(typeof error.cause.message).toBe("string");
       expect(error.cause.message).toMatch(/message/);
     }
+  });
+
+  it.concurrent("should throw if content_type is missing", async () => {
+    setApiKey("SG.123");
+
+    const email = new Email()
+      .from("noreply@example.com")
+      .to("test@example.com")
+      .subject("Test")
+      .message("Hello World");
+
+    (email as any).props.content_type = undefined;
+
+    await expect(email.send()).rejects.toThrowError(/content type/);
   });
 });

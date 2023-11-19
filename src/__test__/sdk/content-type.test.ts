@@ -14,18 +14,18 @@ vi.mock("@sendgrid/mail", async (importOriginal) => {
 
 describe("Content Type", () => {
   setApiKey("SG.123");
-  it("should default to plain text", () => {
+  it.concurrent("should default to plain text", () => {
     const email = new Email();
     expect(email.toJSON().content_type).toBe(ContentType.TEXT);
   });
 
-  it("should allow setting content type", () => {
+  it.concurrent("should allow setting content type", () => {
     const email = new Email();
     email.contentType(ContentType.HTML);
     expect(email.toJSON().content_type).toBe(ContentType.HTML);
   });
 
-  it("Should allow setting content type multiple times", () => {
+  it.concurrent("Should allow setting content type multiple times", () => {
     const email = new Email();
     email.contentType(ContentType.HTML);
     expect(email.toJSON().content_type).toBe(ContentType.HTML);
@@ -33,7 +33,7 @@ describe("Content Type", () => {
     expect(email.toJSON().content_type).toBe(ContentType.TEXT);
   });
 
-  it("Should allow setting content type in constructor", () => {
+  it.concurrent("Should allow setting content type in constructor", () => {
     const email = new Email({ content_type: ContentType.HTML });
     expect(email.toJSON().content_type).toBe(ContentType.HTML);
   });
@@ -52,90 +52,91 @@ describe("Content Type", () => {
       message = faker.lorem.paragraph();
     });
 
-    // it("Should send plain text", async () => {
-    //   const email = new Email()
-    //     .to(to)
-    //     .from(from)
-    //     .subject(subject)
-    //     .message(message);
-    //
-    //   await email.send();
-    //   expect(send).toHaveBeenCalledWith({
-    //     to,
-    //     from,
-    //     subject,
-    //     text: message,
-    //   });
-    // });
-
-    it("Should send html", async () => {
+    it.concurrent("Should send plain text", async () => {
       const email = new Email()
         .to(to)
-        .from(from, true)
+        .from(from)
+        .subject(subject)
+        .message(message);
+
+      await email.send();
+      expect(send).toHaveBeenCalledWith({
+        to,
+        from,
+        subject,
+        text: message,
+      });
+    });
+
+    it.concurrent("Should send html", async () => {
+      const email = new Email()
+        .to(to)
+        .from(from)
         .subject(subject)
         .message(message)
         .contentType(ContentType.HTML);
 
       await email.send();
-      // expect(send).toHaveBeenCalledWith({
-      // to,
-      // from,
-      // subject,
-      // html: message,
-      // });
+      expect(send).toHaveBeenCalledWith({ to, from, subject, html: message });
     });
 
-    // it("should send the correct content type after changing it", async () => {
-    //   const email = new Email()
-    //     .to(to)
-    //     .from(from)
-    //     .subject(subject)
-    //     .message(message)
-    //     .contentType(ContentType.HTML);
-    //
-    //   await email.send();
-    //   expect(send).toHaveBeenCalledWith({
-    //     to,
-    //     from,
-    //     subject,
-    //     html: message,
-    //   });
-    //
-    //   email.contentType(ContentType.TEXT);
-    //   await email.send();
-    //   expect(send).toHaveBeenCalledWith({
-    //     to,
-    //     from,
-    //     subject,
-    //     text: message,
-    //   });
-    // });
-    //
-    // it("should send the correct content type after changing it in constructor", async () => {
-    //   const email = new Email({
-    //     to,
-    //     from,
-    //     subject,
-    //     text: message,
-    //     content_type: ContentType.HTML,
-    //   });
-    //
-    //   await email.send();
-    //   expect(send).toHaveBeenCalledWith({
-    //     to,
-    //     from,
-    //     subject,
-    //     html: message,
-    //   });
-    //
-    //   email.contentType(ContentType.TEXT);
-    //   await email.send();
-    //   expect(send).toHaveBeenCalledWith({
-    //     to,
-    //     from,
-    //     subject,
-    //     text: message,
-    //   });
-    // });
+    it.concurrent(
+      "should send the correct content type after changing it",
+      async () => {
+        const email = new Email()
+          .to(to)
+          .from(from)
+          .subject(subject)
+          .message(message)
+          .contentType(ContentType.HTML);
+
+        await email.send();
+        expect(send).toHaveBeenCalledWith({
+          to,
+          from,
+          subject,
+          html: message,
+        });
+
+        email.contentType(ContentType.TEXT);
+        await email.send();
+        expect(send).toHaveBeenCalledWith({
+          to,
+          from,
+          subject,
+          text: message,
+        });
+      }
+    );
+
+    it.concurrent(
+      "should send the correct content type after changing it in constructor",
+      async () => {
+        const email = new Email({
+          to,
+          from,
+          subject,
+          text: message,
+          content_type: ContentType.HTML,
+        });
+
+        await email.send();
+        expect(send).toHaveBeenCalledWith({
+          to,
+          from,
+          subject,
+          html: message,
+        });
+
+        email.contentType(ContentType.TEXT);
+        await email.send();
+        expect(send).toHaveBeenCalledWith({
+          to,
+          from,
+          subject,
+          text: message,
+        });
+      }
+    );
   });
 });

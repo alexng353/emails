@@ -1,5 +1,5 @@
 import { expect, describe, it, vi } from "vitest";
-import { Email, setApiKey } from "../sdk";
+import { Email, setApiKey, setDefaultSender } from "../sdk";
 import { send } from "@sendgrid/mail";
 
 vi.mock("@sendgrid/mail", async (importOriginal) => {
@@ -12,11 +12,11 @@ vi.mock("@sendgrid/mail", async (importOriginal) => {
 });
 
 describe("email", () => {
-  it("should throw if no api key is set", async () => {
+  it.concurrent("should throw if no api key is set", async () => {
     await expect(new Email().send()).rejects.toThrowError(/API Key/);
   });
 
-  it("should send email", async () => {
+  it.concurrent("should send email", async () => {
     setApiKey("SG.123");
     const email = new Email()
       .from("noreply@example.com")
@@ -26,5 +26,13 @@ describe("email", () => {
 
     await email.send();
     expect(send).toHaveBeenCalled();
+  });
+});
+
+describe("helper functions", () => {
+  describe("setDefaultSender", () => {
+    it.concurrent("should set default sender", async () => {
+      setDefaultSender("test@mail.com");
+    });
   });
 });
