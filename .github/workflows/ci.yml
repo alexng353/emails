@@ -53,7 +53,7 @@ jobs:
         name: Build Application
 
   test:
-    name: "Test and Coverage"
+    name: "Test" # Later add Coverage as well
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -64,5 +64,5 @@ jobs:
           bun-version: "latest"
       - run: bun i --frozen-lockfile
         name: Install dependencies
-      - run: bun run build
+      - run: bun run test
         name: Build Application
