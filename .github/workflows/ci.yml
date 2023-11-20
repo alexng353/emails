@@ -23,7 +23,7 @@ permissions: write-all
 
 jobs:
   lint:
-    runs-on: ubunt-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
