@@ -90,13 +90,13 @@ export class Email extends Util {
 
   //#region Setters
   to(to: string) {
-    z.string().email().parse(to);
+    this.validateEmail(to);
     this.props.to = to;
     return this;
   }
 
   from(from: string) {
-    z.string().email().parse(from);
+    this.validateEmail(from);
     this.props.from = from;
     return this;
   }
@@ -205,7 +205,7 @@ export class Mailer extends Util {
    * from("noreply@example.com");
    */
   from(from: string) {
-    z.string().email().parse(from);
+    this.validateEmail(from);
     this.props.from = from;
     return this;
   }
@@ -235,7 +235,7 @@ export class Mailer extends Util {
    */
   addRecipient(email: string | string[] | TemplateData | TemplateData[]) {
     if (typeof email === "string") {
-      z.string().email().parse(email);
+      this.validateEmail(email);
       this.props.recipients.push(email);
       return this;
     }
@@ -243,7 +243,7 @@ export class Mailer extends Util {
     if (Array.isArray(email)) {
       for (const em of email) {
         if (typeof em === "string") {
-          z.string().email().parse(em);
+          this.validateEmail(em);
           this.props.recipients.push(em);
         } else {
           ZTemplateData.parse(em);

@@ -1,6 +1,7 @@
 import { expect, it, describe, vi } from "vitest";
 import { Mailer } from "../../sdk";
 import { faker } from "@faker-js/faker";
+import format from "string-template";
 
 vi.mock("../../sdk", async (importOriginal) => {
   const module_ = await importOriginal<typeof import("../../sdk")>();
@@ -17,8 +18,16 @@ vi.mock("../../sdk", async (importOriginal) => {
   };
 });
 
+vi.mock("string-template", async (importOriginal) => {
+  const module_ = await importOriginal<typeof import("string-template")>();
+  return {
+    ...module_,
+    default: vi.fn(),
+  };
+});
+
 describe("Mailer", () => {
-  it("should pass coverage lmao", () => {
+  it("Should build if an object is passed as a recipient", () => {
     const mailer = new Mailer();
     mailer.subject("Hello {email}!");
     mailer.message("Hello {email}!");
@@ -32,5 +41,21 @@ describe("Mailer", () => {
     });
 
     mailer.build();
+
+    expect(format).toHaveBeenCalled();
+  });
+
+  it("Should build if an email is passed as a recipient", () => {
+    const mailer = new Mailer();
+    mailer.subject("Hello!");
+    mailer.message("Hello!");
+    mailer.from(faker.internet.email());
+
+    const email = faker.internet.email();
+    mailer.addRecipient(email);
+
+    mailer.build();
+
+    expect(format).toHaveBeenCalled();
   });
 });

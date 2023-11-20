@@ -1,5 +1,6 @@
 import sg from "@sendgrid/mail";
 import { outdent } from "outdent";
+import { z } from "zod";
 
 export class Util {
   constructor() {
@@ -15,6 +16,16 @@ export class Util {
           Set the SENDGRID_API_KEY environment variable or call setApiKey()
         `
       );
+    }
+  }
+
+  validateEmail(email: string) {
+    try {
+      z.string().email().parse(email);
+    } catch (error) {
+      throw new Error(`Invalid email: ${email}`, {
+        cause: error,
+      });
     }
   }
 }
