@@ -2,6 +2,13 @@ import { expect, describe, it, vi } from "vitest";
 import { Email, setApiKey, setDefaultSender } from "../sdk";
 import { send } from "@sendgrid/mail";
 
+vi.mock("string-template", async (importOriginal) => {
+  const module_ = await importOriginal<typeof import("string-template")>();
+  return {
+    ...module_,
+  };
+});
+
 vi.mock("@sendgrid/mail", async (importOriginal) => {
   const module_ = await importOriginal<typeof import("@sendgrid/mail")>();
   return {
