@@ -23,9 +23,7 @@ export class Util {
     try {
       z.string().email().parse(email);
     } catch (error) {
-      throw new Error(`Invalid email: ${email}`, {
-        cause: error,
-      });
+      throw new Error(`Invalid email: ${email}`, { cause: error });
     }
   }
 }
